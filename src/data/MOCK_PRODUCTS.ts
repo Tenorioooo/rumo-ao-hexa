@@ -3666,3 +3666,34 @@ export const MOCK_PRODUCTS: Product[] = [
   }
 ];
 
+
+export const TEST_PRODUCT = {
+  id: 999,
+  name: "Produto de Teste Podpay",
+  slug: "teste-podpay-1-real",
+  brand: "Teste",
+  description: "Produto criado para testar a integração do PIX de 1 Real.",
+  price: 1.00,
+  category_id: "pod-system",
+  image_url: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=TEST",
+  rating: 5.0,
+  review_count: 0,
+  in_stock: true,
+  stock_count: 999,
+  is_new: true
+  {
+    id: 999,
+    name: "Produto de Teste Podpay",
+    slug: "teste-podpay-1-real",
+    brand: "Teste",
+    description: "Produto criado para testar a integração do PIX de 1 Real.",
+    price: 1.00,
+    category_id: "pod-system",
+    image_url: "https://cdn.vendizap.com/vendizap-produtos/3a6be37587ba98c6eabef8e46fce1a1e.webp",
+    rating: 5.0,
+    review_count: 0,
+    in_stock: true,
+    stock_count: 999,
+    is_new: true
+  }
+];
