@@ -3663,9 +3663,7 @@ export const MOCK_PRODUCTS: Product[] = [
     puffs: null,
     battery: null,
     intensity: '3mg'
-  }
-];
-  ,
+  },
   {
     id: 999,
     name: "Produto de Teste Podpay",

@@ -16,28 +16,39 @@ export default async function handler(req, res) {
     const orderReference = referenceId || `PEDIDO-${Date.now()}`;
     const amountInCents = Math.round(amount * 100);
 
-    // Payload para Podpay
+    // Payload para Podpay (conforme documentação /v1/transactions)
     const payload = {
+      paymentMethod: "pix",
       amount: amountInCents,
+      externalId: orderReference,
       description: productName || "Pedido Vapex",
-      external_id: orderReference,
-      payment_method: "pix",
       customer: {
         name: name,
         email: email,
-        document: cpf.replace(/\D/g, ""),
         phone: phone.replace(/\D/g, ""),
-      }
+        document: {
+          type: "cpf",
+          number: cpf.replace(/\D/g, "")
+        }
+      },
+      items: [
+        {
+          title: productName || "Pedido Vapex",
+          unitPrice: amountInCents,
+          quantity: 1,
+          tangible: true
+        }
+      ]
     };
 
     console.log(`Gerando PIX Podpay - Valor: ${amount} - Pedido: ${orderReference}`);
 
-    const response = await fetch("https://api.podpay.app/v1/payments", {
+    const response = await fetch("https://api.podpay.app/v1/transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "X-Idempotency-Key": orderReference // Usando o ID do pedido como chave de idempotência
+        "x-api-key": apiKey,
+        "X-Idempotency-Key": orderReference
       },
       body: JSON.stringify(payload),
     });
@@ -45,20 +56,23 @@ export default async function handler(req, res) {
     const responseData = await response.json();
     console.log("--- RESPOSTA PODPAY ---", responseData);
 
-    if (response.ok) {
+    const data = responseData.data || responseData;
+
+    if (response.ok && data.status !== 'failed') {
       // Mapeando a resposta da Podpay para o formato esperado pelo frontend
       return res.status(200).json({
         status: "success",
-        transaction_id: responseData.id || responseData.transaction_id,
-        reference: responseData.external_id || orderReference,
-        pix_code: responseData.pix_code || responseData.copy_paste || responseData.code,
-        pix_qr_code: responseData.pix_qr_code || responseData.qr_code || responseData.image_url,
+        transaction_id: data.id || data.transaction_id,
+        reference: data.externalId || data.external_id || orderReference,
+        pix_code: data.pixQrCode || data.pix?.qrcodeText || data.pix_code || data.copy_paste,
+        pix_qr_code: data.pixQrCodeBase64 || data.pix?.qrcodeBase64 || data.pix_qr_code || data.qr_code || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.pixQrCode || data.pix?.qrcodeText || data.pix_code || data.copy_paste)}`,
         amount: amount,
       });
     } else {
-      console.error("Erro na resposta da Podpay:", responseData);
+      const errorMsg = data.failedReason || data.message || data.error || "Falha ao processar o pagamento com Podpay";
+      console.error("Erro na resposta da Podpay:", errorMsg);
       return res.status(400).json({
-        error: responseData.message || responseData.error || "Falha ao processar o pagamento com Podpay"
+        error: errorMsg
       });
     }
   } catch (error) {
