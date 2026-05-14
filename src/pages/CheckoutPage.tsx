@@ -10,7 +10,7 @@ type PaymentMethod = 'pix' | 'card' | 'boleto';
 type Step = 'info' | 'payment' | 'confirm';
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
+  const { items, total, subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('info');
@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   });
 
   const shipping = 0;
+  const promoDiscount = subtotal - total;
   const finalTotal = total + shipping;
 
   const updateForm = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
@@ -275,8 +276,14 @@ export default function CheckoutPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal ({items.length} itens)</span>
-                  <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+                  <span>R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                 </div>
+                {promoDiscount > 0 && (
+                  <div className="flex justify-between text-cyan-400">
+                    <span>Promoção Compre 1 Leve 2</span>
+                    <span>-R$ {promoDiscount.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-400">
                   <span>Frete</span>
                   <span>{shipping === 0 ? <span className="text-emerald-400">Grátis</span> : `R$ ${shipping.toFixed(2).replace('.', ',')}`}</span>

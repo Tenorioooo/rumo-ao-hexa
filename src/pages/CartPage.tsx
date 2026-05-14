@@ -7,14 +7,15 @@ import { supabase } from '../lib/supabase';
 import ProductImage from '../components/ui/ProductImage';
 
 export default function CartPage() {
-  const { items, total, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, total, subtotal, removeItem, updateQuantity, clearCart } = useCart();
   const [coupon, setCoupon] = useState('');
-  const [discount, setDiscount] = useState(0);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
 
   const shipping = 0;
-  const finalTotal = total - discount + shipping;
+  const promoDiscount = subtotal - total;
+  const finalTotal = total - couponDiscount + shipping;
 
   const handleCoupon = async () => {
     setCouponError('');
@@ -35,7 +36,7 @@ export default function CartPage() {
       return;
     }
     const disc = (total * data.discount_percent) / 100;
-    setDiscount(disc);
+    setCouponDiscount(disc);
     setCouponSuccess(`Cupom aplicado! ${data.discount_percent}% de desconto`);
   };
 
@@ -63,56 +64,73 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map(item => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                className="flex gap-4 p-4 bg-[#0a0a0a] rounded-2xl border border-white/5"
-              >
-                <Link to={`/produto/${item.product?.slug || ''}`}
-                  className="w-24 h-24 shrink-0 rounded-xl overflow-hidden">
-                  <ProductImage src={item.product?.image_url || null} alt={item.product?.name || ''} brand={item.product?.brand} size="sm" />
-                </Link>
-
-                <div className="flex-1 min-w-0">
-                  <Link to={`/produto/${item.product?.slug || ''}`}>
-                    <h3 className="text-white font-semibold text-sm hover:text-cyan-400 transition-colors truncate">
-                      {item.product?.name || 'Produto'}
-                    </h3>
+            {items.map(item => {
+              const isPromo = item.product?.category_id === 'pods-descartaveis' || item.product?.category_id === 'pods-recarregaveis';
+              return (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  className="flex gap-4 p-4 bg-[#0a0a0a] rounded-2xl border border-white/5"
+                >
+                  <Link to={`/produto/${item.product?.slug || ''}`}
+                    className="w-24 h-24 shrink-0 rounded-xl overflow-hidden">
+                    <ProductImage src={item.product?.image_url || null} alt={item.product?.name || ''} brand={item.product?.brand} size="sm" />
                   </Link>
-                  <div className="text-xs text-gray-500 mt-1">{item.product?.brand}</div>
-                  {item.flavor && <div className="text-xs text-gray-500">Sabor: {item.flavor}</div>}
-                  {item.color && <div className="text-xs text-gray-500">Cor: {item.color}</div>}
 
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
-                        <Minus size={14} />
-                      </button>
-                      <span className="w-8 text-center text-white text-sm font-medium">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
-                        <Plus size={14} />
-                      </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link to={`/produto/${item.product?.slug || ''}`} className="min-w-0">
+                        <h3 className="text-white font-semibold text-sm hover:text-cyan-400 transition-colors truncate">
+                          {item.product?.name || 'Produto'}
+                        </h3>
+                      </Link>
+                      {isPromo && (
+                        <span className="shrink-0 px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold rounded uppercase tracking-wider">
+                          Compre 1 Leve 2
+                        </span>
+                      )}
                     </div>
+                    <div className="text-xs text-gray-500 mt-1">{item.product?.brand}</div>
+                    {item.flavor && <div className="text-xs text-gray-500">Sabor: {item.flavor}</div>}
+                    {item.color && <div className="text-xs text-gray-500">Cor: {item.color}</div>}
 
-                    <div className="flex items-center gap-3">
-                      <span className="text-white font-bold">
-                        R$ {((item.product?.price ?? 0) * item.quantity).toFixed(2).replace('.', ',')}
-                      </span>
-                      <button onClick={() => removeItem(item.id)}
-                        className="p-2 text-gray-600 hover:text-red-400 transition-colors">
-                        <Trash2 size={16} />
-                      </button>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                          <Minus size={14} />
+                        </button>
+                        <span className="w-8 text-center text-white text-sm font-medium">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                          <Plus size={14} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          {isPromo && item.quantity >= 2 && (
+                            <div className="text-[10px] text-gray-500 line-through">
+                              R$ {((item.product?.price ?? 0) * item.quantity).toFixed(2).replace('.', ',')}
+                            </div>
+                          )}
+                          <span className="text-white font-bold">
+                            R$ {(isPromo ? (item.product?.price ?? 0) * Math.ceil(item.quantity / 2) : (item.product?.price ?? 0) * item.quantity).toFixed(2).replace('.', ',')}
+                          </span>
+                        </div>
+                        <button onClick={() => removeItem(item.id)}
+                          className="p-2 text-gray-600 hover:text-red-400 transition-colors">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Summary */}
@@ -123,12 +141,18 @@ export default function CartPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal</span>
-                  <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+                  <span>R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                 </div>
-                {discount > 0 && (
+                {promoDiscount > 0 && (
+                  <div className="flex justify-between text-cyan-400 font-medium">
+                    <span>Promoção Compre 1 Leve 2</span>
+                    <span>-R$ {promoDiscount.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                )}
+                {couponDiscount > 0 && (
                   <div className="flex justify-between text-emerald-400">
-                    <span>Desconto</span>
-                    <span>-R$ {discount.toFixed(2).replace('.', ',')}</span>
+                    <span>Cupom</span>
+                    <span>-R$ {couponDiscount.toFixed(2).replace('.', ',')}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-400">

@@ -7,6 +7,7 @@ interface CartContextType {
   items: CartItem[];
   itemCount: number;
   total: number;
+  subtotal: number;
   loading: boolean;
   addItem: (product: Product, flavor?: string, color?: string) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
@@ -118,10 +119,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const total = items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0);
+  
+  // Preço total sem descontos
+  const subtotal = items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0);
+  
+  // Preço total com a promoção Compre 1 Leve 2
+  const total = items.reduce((sum, i) => {
+    const price = i.product?.price ?? 0;
+    const isPromo = i.product?.category_id === 'pods-descartaveis' || i.product?.category_id === 'pods-recarregaveis';
+    
+    if (isPromo) {
+      // Promoção Compre 1 Leve 2: Para cada 2 itens, paga apenas 1
+      const paidQuantity = Math.ceil(i.quantity / 2);
+      return sum + (price * paidQuantity);
+    }
+    
+    return sum + price * i.quantity;
+  }, 0);
 
   return (
-    <CartContext.Provider value={{ items, itemCount, total, loading, addItem, removeItem, updateQuantity, clearCart }}>
+    <CartContext.Provider value={{ items, itemCount, total, subtotal, loading, addItem, removeItem, updateQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
