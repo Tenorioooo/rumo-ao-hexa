@@ -7,12 +7,11 @@ export default async function handler(req, res) {
   const { name, cpf, email, phone, amount, productName, referenceId, trackingParameters } = req.body;
 
   try {
-    const apiKey = process.env.PODPAY_API_KEY;
+    const apiKey = process.env.VENO_API_KEY;
     const utmifyToken = process.env.UTMIFY_TOKEN;
 
     if (!apiKey) {
-      // console.error("ERRO: Variável de ambiente PODPAY_API_KEY não configurada");
-      return res.status(500).json({ error: 'Erro de configuração do servidor (Podpay API Key)' });
+      return res.status(500).json({ error: 'Erro de configuração do servidor (Veno API Key não encontrada)' });
     }
 
     const orderReference = referenceId || `PEDIDO-${Date.now()}`;
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
       try {
         const utmifyPayload = {
           orderId: orderReference,
-          platform: "Podpay",
+          platform: "VenoPayments",
           paymentMethod: "pix",
           status: "waiting_payment",
           createdAt: new Date().toISOString().replace('T', ' ').split('.')[0],
@@ -32,8 +31,8 @@ export default async function handler(req, res) {
           customer: {
             name: name,
             email: email,
-            phone: phone.replace(/\D/g, ""),
-            document: cpf.replace(/\D/g, ""),
+            phone: phone ? phone.replace(/\D/g, "") : "",
+            document: cpf ? cpf.replace(/\D/g, "") : "",
             country: "BR"
           },
           products: [
@@ -72,77 +71,70 @@ export default async function handler(req, res) {
           body: JSON.stringify(utmifyPayload)
         });
         
-        const utmifyResult = await utmifyResponse.json().catch(() => ({}));
-        /* console.log("--- RESPOSTA UTMIFY ---", {
-          status: utmifyResponse.status,
-          data: utmifyResult
-        }); */
+        await utmifyResponse.json().catch(() => ({}));
       } catch (e) {
         console.error("Erro ao enviar para Utmify:", e);
       }
     }
 
-    // Payload para Podpay (conforme documentação /v1/transactions)
+    // Payload para Veno Payments
+    const host = req.headers.host || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+
     const payload = {
-      paymentMethod: "pix",
       amount: amountInCents,
-      externalId: orderReference,
-      description: productName || "Pedido Vapex",
-      customer: {
-        name: name,
-        email: email,
-        phone: phone.replace(/\D/g, ""),
-        document: {
-          type: "cpf",
-          number: cpf.replace(/\D/g, "")
-        }
+      callback_url: `${protocol}://${host}/api/webhook`,
+      external_id: orderReference,
+      description: (productName || "Pedido Vapex").substring(0, 100),
+      payer: {
+        name: name || "Cliente Vapex",
+        email: email || "cliente@vapex.com",
+        document: cpf ? cpf.replace(/\D/g, "") : "00000000000",
+        phone: phone ? phone.replace(/\D/g, "") : "11999999999"
       },
-      items: [
-        {
-          title: productName || "Pedido Vapex",
-          unitPrice: amountInCents,
-          quantity: 1,
-          tangible: true
-        }
-      ]
+      utm_source: trackingParameters?.utm_source || undefined,
+      utm_medium: trackingParameters?.utm_medium || undefined,
+      utm_campaign: trackingParameters?.utm_campaign || undefined,
+      utm_content: trackingParameters?.utm_content || undefined,
+      utm_term: trackingParameters?.utm_term || undefined,
+      src: trackingParameters?.src || undefined,
+      sck: trackingParameters?.sck || undefined
     };
 
-    console.log(`Gerando PIX Podpay - Valor: ${amount} - Pedido: ${orderReference}`);
-
-    const response = await fetch("https://api.podpay.app/v1/transactions", {
+    const response = await fetch("https://beta.venopayments.com/api/v1/pix", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "X-Idempotency-Key": orderReference
+        "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify(payload),
     });
 
     const responseData = await response.json();
-    // console.log("--- RESPOSTA PODPAY ---", responseData);
 
-    const data = responseData.data || responseData;
+    if (response.ok && responseData.id) {
+      const emvCode = responseData.pix_copy_paste || responseData.qr_code;
+      const qrImage = responseData.qr_code_image && (responseData.qr_code_image.startsWith('http') || responseData.qr_code_image.startsWith('data:image')) 
+        ? responseData.qr_code_image 
+        : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(emvCode)}`;
 
-    if (response.ok && data.status !== 'failed') {
-      // Mapeando a resposta da Podpay para o formato esperado pelo frontend
       return res.status(200).json({
         status: "success",
-        transaction_id: data.id || data.transaction_id,
-        reference: data.externalId || data.external_id || orderReference,
-        pix_code: data.pixQrCode || data.pix?.qrcodeText || data.pix_code || data.copy_paste,
-        pix_qr_code: data.pixQrCodeBase64 || data.pix?.qrcodeBase64 || data.pix_qr_code || data.qr_code || `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.pixQrCode || data.pix?.qrcodeText || data.pix_code || data.copy_paste)}`,
+        transaction_id: responseData.id,
+        reference: responseData.external_id || orderReference,
+        pix_code: emvCode,
+        pix_qr_code: qrImage,
         amount: amount,
+        expires_at: responseData.expires_at,
       });
     } else {
-      const errorMsg = data.failedReason || data.message || data.error || "Falha ao processar o pagamento com Podpay";
-      console.error("Erro na resposta da Podpay:", errorMsg);
+      console.error("Erro na resposta da Veno Payments:", responseData);
       return res.status(400).json({
-        error: errorMsg
+        error: responseData.message || responseData.error || "Falha ao processar o pagamento com Veno"
       });
     }
   } catch (error) {
-    console.error("Erro interno na API de PIX (Podpay):", error);
+    console.error("Erro interno na API de PIX (Veno):", error);
     return res.status(500).json({ error: error.message || "Erro interno do servidor" });
   }
 }
