@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import { CartProvider } from './components/layout/CartContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -37,6 +38,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <CartProvider>
         <div className="min-h-screen bg-[#050505] text-white">
           <Header />
