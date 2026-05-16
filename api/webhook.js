@@ -47,6 +47,8 @@ export default async function handler(req, res) {
           {
             id: "vapex-item",
             name: "Produto Vapex",
+            planId: null,
+            planName: null,
             quantity: 1,
             priceInCents: amountInCents
           }
