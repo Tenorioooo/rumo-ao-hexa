@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { CartProvider } from './components/layout/CartContext';
 import Header from './components/layout/Header';
@@ -14,11 +14,24 @@ import SearchPage from './pages/SearchPage';
 import NewArrivalsPage from './pages/NewArrivalsPage';
 import InfoPage from './pages/InfoPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import { initMetaPixel, pixelPageView } from './lib/metaPixel';
 
 import { useEffect } from 'react';
 
+/** Dispara PageView do Meta Pixel em cada mudança de rota */
+function MetaPixelTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    pixelPageView();
+  }, [location.pathname]);
+  return null;
+}
+
 function App() {
   useEffect(() => {
+    // Inicializa o Meta Pixel uma vez
+    initMetaPixel();
+
     const params = new URLSearchParams(window.location.search);
     const utms = {
       utm_source: params.get('utm_source'),
@@ -39,6 +52,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <MetaPixelTracker />
       <CartProvider>
         <div className="min-h-screen bg-[#050505] text-white">
           <Header />
