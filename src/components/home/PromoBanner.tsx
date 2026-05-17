@@ -15,7 +15,7 @@ export default function PromoBanner() {
             className="relative overflow-hidden rounded-3xl shadow-2xl shadow-cyan-500/10 w-full"
           >
             <img 
-              src="https://chatgpt.com/backend-api/estuary/content?id=file_000000004b8c71fbb1ad98fbb6e7cdb8&ts=494179&p=fs&cid=1&sig=c7f1666f46838ed72e3e1749dc9e94ee018ea698a746b8dbc1bd039894161eae&v=0" 
+              src="/banner.png" 
               alt="Promoção Especial" 
               className="w-full h-auto object-cover"
             />
