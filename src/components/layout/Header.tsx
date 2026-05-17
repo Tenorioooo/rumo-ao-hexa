@@ -125,7 +125,9 @@ export default function Header() {
               className="w-full max-w-2xl mx-4"
             >
               <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <button type="submit" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors z-10">
+                  <Search size={20} />
+                </button>
                 <input
                   autoFocus
                   value={searchQuery}
