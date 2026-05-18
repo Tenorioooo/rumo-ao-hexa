@@ -21,6 +21,41 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [pixData, setPixData] = useState<{ pix_code: string; pix_qr_code: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [paymentApproved, setPaymentApproved] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutos em segundos
+
+  // Countdown Timer
+  useEffect(() => {
+    if (step !== 'confirm' || timeLeft <= 0 || paymentApproved) return;
+    const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [step, timeLeft, paymentApproved]);
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+
+  // Real-time polling para checar status do pagamento via Supabase
+  useEffect(() => {
+    if (step !== 'confirm' || !orderId || paymentApproved || !import.meta.env.VITE_SUPABASE_URL) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('status, payment_status')
+          .eq('id', orderId)
+          .maybeSingle();
+
+        if (data && (data.status === 'approved' || data.status === 'paid' || data.payment_status === 'paid')) {
+          setPaymentApproved(true);
+        }
+      } catch (e) {
+        console.error("Erro ao verificar status do pagamento:", e);
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [step, orderId, paymentApproved]);
   
   // Track Initiate Checkout
   useEffect(() => {
@@ -319,6 +354,32 @@ export default function CheckoutPage() {
         {step === 'info' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h2 className="text-2xl font-bold text-white mb-6">Dados de Entrega</h2>
+            
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-cyan-500/5 border border-cyan-500/10 rounded-2xl flex items-start gap-3">
+                <div className="p-2 bg-cyan-500/10 rounded-xl text-cyan-400 shrink-0">
+                  <Shield size={18} />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-xs">Embalagem 100% Discreta</h4>
+                  <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">
+                    Caixa ou envelope pardo totalmente neutro, sem nenhuma menção à loja ou produto.
+                  </p>
+                </div>
+              </div>
+              <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl flex items-start gap-3">
+                <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400 shrink-0">
+                  <QrCode size={18} />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-xs">Ganhe 5% de Desconto no PIX</h4>
+                  <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">
+                    O desconto será aplicado automaticamente na tela de pagamento.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -571,56 +632,99 @@ export default function CheckoutPage() {
 
         {step === 'confirm' && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-12">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse">
-              <QrCode size={40} className="text-cyan-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-4">Aguardando Pagamento</h2>
-            <p className="text-gray-400 mb-2">Escaneie o QR Code ou copie o código PIX para confirmar seu pedido.</p>
-            {orderId && <p className="text-gray-500 text-sm mb-8">ID do pedido: {orderId.slice(0, 8).toUpperCase()}</p>}
-            
-            {pixData && (
-              <div className="mb-8 max-w-sm mx-auto p-6 bg-white/[0.02] border border-white/10 rounded-3xl">
-                <h3 className="text-white font-bold mb-4 flex items-center justify-center gap-2">
-                  <QrCode size={20} className="text-cyan-400" /> Pagamento via PIX
-                </h3>
-                <div className="bg-white p-4 rounded-2xl mb-6 inline-block shadow-lg shadow-cyan-500/10">
-                  {pixData.pix_qr_code ? (
-                    <img 
-                      src={pixData.pix_qr_code.startsWith('http') ? pixData.pix_qr_code : (pixData.pix_qr_code.includes('data:image') ? pixData.pix_qr_code : `data:image/png;base64,${pixData.pix_qr_code}`)} 
-                      alt="QR Code PIX" 
-                      className="w-48 h-48"
-                    />
-                  ) : (
-                    <div className="w-48 h-48 flex items-center justify-center text-gray-400 text-xs">
-                      QR Code não disponível
-                    </div>
-                  )}
+            {paymentApproved ? (
+              <>
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                  <Check size={40} className="text-emerald-400" />
                 </div>
-                <div className="bg-black/40 border border-white/5 rounded-xl p-3 mb-4 text-left">
-                  <p className="text-[10px] text-gray-500 font-mono break-all line-clamp-2">{pixData.pix_code}</p>
+                <h2 className="text-3xl font-bold text-white mb-4">Pagamento Confirmado!</h2>
+                <p className="text-gray-400 mb-8 max-w-md mx-auto">
+                  Excelente! Seu pagamento foi recebido com sucesso e seu pedido já está sendo preparado com total discrição.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Link to="/conta" className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-medium rounded-2xl border border-white/10 transition-colors">
+                    Meus Pedidos
+                  </Link>
+                  <Link to="/" className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/25">
+                    Voltar à Página Inicial
+                  </Link>
                 </div>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(pixData.pix_code);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="w-full py-3 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-cyan-500/20 transition-all"
-                >
-                  {copied ? <Check size={18} /> : <FileText size={18} />}
-                  {copied ? 'Copiado!' : 'Copiar Código PIX'}
-                </button>
-              </div>
-            )}
+              </>
+            ) : (
+              <>
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/30">
+                  <QrCode size={40} className="text-cyan-400" />
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-2">Aguardando Pagamento</h2>
+                
+                {timeLeft > 0 ? (
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-6 animate-pulse">
+                    <span>⏱️ Seu PIX expira em: </span>
+                    <span className="font-mono text-sm font-bold">{minutes}:{seconds < 10 ? '0' : ''}{seconds}</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold mb-6">
+                    <span>⚠️ O código PIX expirou</span>
+                  </div>
+                )}
 
-            <div className="flex justify-center gap-4">
-              <Link to="/conta" className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-medium rounded-2xl border border-white/10 transition-colors">
-                Meus Pedidos
-              </Link>
-              <Link to="/" className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/25">
-                Voltar à Loja
-              </Link>
-            </div>
+                <p className="text-gray-400 mb-2">Escaneie o QR Code ou copie o código PIX para confirmar seu pedido.</p>
+                {orderId && <p className="text-gray-500 text-sm mb-8">ID do pedido: {orderId.slice(0, 8).toUpperCase()}</p>}
+                
+                {pixData && (
+                  <div className="mb-8 max-w-sm mx-auto p-6 bg-white/[0.02] border border-white/10 rounded-3xl">
+                    <h3 className="text-white font-bold mb-4 flex items-center justify-center gap-2">
+                      <QrCode size={20} className="text-cyan-400" /> Pagamento via PIX
+                    </h3>
+                    <div className="bg-white p-4 rounded-2xl mb-6 inline-block shadow-lg shadow-cyan-500/10">
+                      {pixData.pix_qr_code ? (
+                        <img 
+                          src={pixData.pix_qr_code.startsWith('http') ? pixData.pix_qr_code : (pixData.pix_qr_code.includes('data:image') ? pixData.pix_qr_code : `data:image/png;base64,${pixData.pix_qr_code}`)} 
+                          alt="QR Code PIX" 
+                          className="w-48 h-48"
+                        />
+                      ) : (
+                        <div className="w-48 h-48 flex items-center justify-center text-gray-400 text-xs">
+                          QR Code não disponível
+                        </div>
+                      )}
+                    </div>
+                    <div className="bg-black/40 border border-white/5 rounded-xl p-3 mb-4 text-left">
+                      <p className="text-[10px] text-gray-500 font-mono break-all line-clamp-2">{pixData.pix_code}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(pixData.pix_code);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="w-full py-3 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-cyan-500/20 transition-all mb-4"
+                    >
+                      {copied ? <Check size={18} /> : <FileText size={18} />}
+                      {copied ? 'Copiado!' : 'Copiar Código PIX'}
+                    </button>
+
+                    <div className="text-left pt-4 border-t border-white/5 space-y-3">
+                      <h4 className="text-[10px] font-bold text-white uppercase tracking-wider">Como pagar:</h4>
+                      <ol className="text-[11px] text-gray-400 space-y-2 list-decimal list-inside pl-1 leading-relaxed">
+                        <li>Clique no botão <span className="text-cyan-400 font-medium">"Copiar Código PIX"</span> acima.</li>
+                        <li>Abra o aplicativo do seu banco e acesse a área <span className="text-white font-medium">Pix</span>.</li>
+                        <li>Selecione <span className="text-white font-medium">"Pix Copia e Cola"</span>, cole o código copiado e conclua seu pagamento.</li>
+                      </ol>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-center gap-4">
+                  <Link to="/conta" className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-medium rounded-2xl border border-white/10 transition-colors">
+                    Meus Pedidos
+                  </Link>
+                  <Link to="/" className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/25">
+                    Voltar à Loja
+                  </Link>
+                </div>
+              </>
+            )}
           </motion.div>
         )}
       </div>

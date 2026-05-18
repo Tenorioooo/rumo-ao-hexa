@@ -1,3 +1,8 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,6 +23,24 @@ export default async function handler(req, res) {
   console.log(`Processando pedido: ${orderId} | Status: ${status} | Pago: ${isPaid}`);
 
   if (isPaid && orderId) {
+    // Atualiza o status do pedido no Supabase
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: 'approved', payment_status: 'paid' })
+          .eq('id', orderId);
+
+        if (error) {
+          console.error("Erro ao atualizar status do pedido no Supabase:", error);
+        } else {
+          console.log(`Pedido ${orderId} atualizado no Supabase com sucesso.`);
+        }
+      } catch (sbErr) {
+        console.error("Erro na integração com o Supabase no Webhook:", sbErr);
+      }
+    }
+
     try {
       const utmifyToken = process.env.UTMIFY_TOKEN;
       
