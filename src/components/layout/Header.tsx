@@ -43,8 +43,8 @@ export default function Header() {
       <div className="bg-[#0a0a0a] text-center text-xs text-gray-400 py-1.5 border-b border-white/5">
         Venda proibida para menores de 18 anos
       </div>
-      <header className={`fixed top-[30px] left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'bg-[#0a0a0a]/90 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-white/5' : 'bg-transparent'
+      <header className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? 'top-0 bg-[#0a0a0a]/95 backdrop-blur-2xl shadow-lg shadow-black/40 border-b border-white/10' : 'top-[30px] bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
