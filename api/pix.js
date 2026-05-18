@@ -17,76 +17,67 @@ export default async function handler(req, res) {
     const orderReference = referenceId || `PEDIDO-${Date.now()}`;
     const amountInCents = Math.round(amount * 100);
 
-    // Enviar para Utmify (Opcional, não bloqueia o PIX)
-    if (utmifyToken) {
-      try {
-        const utmifyPayload = {
-          orderId: orderReference,
-          platform: "VenoPayments",
-          paymentMethod: "pix",
-          status: "waiting_payment",
-          createdAt: new Date().toISOString().replace('T', ' ').split('.')[0],
-          approvedDate: null,
-          refundedAt: null,
-          customer: {
-            name: name,
-            email: email,
-            phone: phone ? phone.replace(/\D/g, "") : "",
-            document: cpf ? cpf.replace(/\D/g, "") : "",
-            country: "BR"
-          },
-          products: [
-            {
-              id: productName || "vapex-item",
-              name: productName || "Pedido Vapex",
-              planId: null,
-              planName: null,
-              quantity: 1,
-              priceInCents: amountInCents
-            }
-          ],
-          trackingParameters: {
-            utm_source: trackingParameters?.utm_source || null,
-            utm_medium: trackingParameters?.utm_medium || null,
-            utm_campaign: trackingParameters?.utm_campaign || null,
-            utm_content: trackingParameters?.utm_content || null,
-            utm_term: trackingParameters?.utm_term || null,
-            src: trackingParameters?.src || null,
-            sck: trackingParameters?.sck || null
-          },
-          commission: {
-            totalPriceInCents: amountInCents,
-            gatewayFeeInCents: Math.round(amountInCents * 0.05), // Estimativa de 5%
-            userCommissionInCents: Math.round(amountInCents * 0.95)
-          },
-          isTest: false
-        };
+    // Prepara chamadas em paralelo para evitar Timeout na Vercel (10s limit)
+    const promises = [];
 
-        const utmifyResponse = await fetch("https://api.utmify.com.br/api-credentials/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-token": utmifyToken
-          },
-          body: JSON.stringify(utmifyPayload)
-        });
-        
-        const utmifyResult = await utmifyResponse.json().catch(() => ({}));
-        if (!utmifyResponse.ok) {
-          console.error("Erro detalhado Utmify:", utmifyResult);
-        } else {
-          console.log("Sucesso Utmify:", utmifyResult);
-        }
-      } catch (e) {
-        console.error("Erro ao enviar para Utmify:", e);
-      }
+    // 1. Promise do Utmify
+    if (utmifyToken) {
+      const utmifyPayload = {
+        orderId: orderReference,
+        platform: "VenoPayments",
+        paymentMethod: "pix",
+        status: "waiting_payment",
+        createdAt: new Date().toISOString().replace('T', ' ').split('.')[0],
+        approvedDate: null,
+        refundedAt: null,
+        customer: {
+          name: name,
+          email: email,
+          phone: phone ? phone.replace(/\D/g, "") : "",
+          document: cpf ? cpf.replace(/\D/g, "") : "",
+          country: "BR"
+        },
+        products: [
+          {
+            id: productName || "vapex-item",
+            name: productName || "Pedido Vapex",
+            planId: null,
+            planName: null,
+            quantity: 1,
+            priceInCents: amountInCents
+          }
+        ],
+        trackingParameters: {
+          utm_source: trackingParameters?.utm_source || null,
+          utm_medium: trackingParameters?.utm_medium || null,
+          utm_campaign: trackingParameters?.utm_campaign || null,
+          utm_content: trackingParameters?.utm_content || null,
+          utm_term: trackingParameters?.utm_term || null,
+          src: trackingParameters?.src || null,
+          sck: trackingParameters?.sck || null
+        },
+        commission: {
+          totalPriceInCents: amountInCents,
+          gatewayFeeInCents: Math.round(amountInCents * 0.05),
+          userCommissionInCents: Math.round(amountInCents * 0.95)
+        },
+        isTest: false
+      };
+
+      const utmifyPromise = fetch("https://api.utmify.com.br/api-credentials/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-token": utmifyToken },
+        body: JSON.stringify(utmifyPayload)
+      }).catch(e => console.error("Erro rede Utmify:", e));
+      
+      promises.push(utmifyPromise);
     }
 
-    // Payload para Veno Payments
+    // 2. Promise do VenoPay
     const host = req.headers.host || 'localhost:3000';
     const protocol = host.includes('localhost') ? 'http' : 'https';
 
-    const payload = {
+    const venoPayload = {
       amount: amountInCents,
       callback_url: `${protocol}://${host}/api/webhook`,
       external_id: orderReference,
@@ -106,15 +97,25 @@ export default async function handler(req, res) {
       sck: trackingParameters?.sck || undefined
     };
 
-    const response = await fetch("https://beta.venopayments.com/api/v1/pix", {
+    const venoPromise = fetch("https://beta.venopayments.com/api/v1/pix", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      body: JSON.stringify(venoPayload),
     });
+    
+    promises.push(venoPromise);
 
+    // Executa ambas simultaneamente
+    const results = await Promise.allSettled(promises);
+    
+    // O último item no array promises é sempre o VenoPay
+    const venoResult = results[results.length - 1];
+    
+    if (venoResult.status === 'rejected') {
+      throw new Error("Falha na requisição para VenoPay: " + venoResult.reason);
+    }
+
+    const response = venoResult.value;
     const responseData = await response.json();
 
     if (response.ok && responseData.id) {
