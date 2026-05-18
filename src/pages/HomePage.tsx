@@ -8,8 +8,8 @@ import Benefits from '../components/home/Benefits';
 export default function HomePage() {
   return (
     <>
-      <FeaturedProducts />
       <PromoBanner />
+      <FeaturedProducts />
       <Categories />
       <Hero />
       <Lifestyle />
