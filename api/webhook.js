@@ -10,18 +10,52 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const data = req.body;
+  let data = req.body;
+
+  // Realiza parse manual se for string
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      console.error("Erro ao converter string do body para JSON:", e);
+    }
+  }
+
+  // Realiza parse se for Buffer
+  if (Buffer.isBuffer(data)) {
+    try {
+      data = JSON.parse(data.toString('utf-8'));
+    } catch (e) {
+      console.error("Erro ao converter Buffer do body para JSON:", e);
+    }
+  }
+
+  // Garante que é um objeto utilizável
+  if (!data || typeof data !== 'object') {
+    data = {};
+  }
+
   console.log("Webhook Veno recebido (Body):", JSON.stringify(data, null, 2));
 
   // Tenta pegar o ID do pedido de várias formas comuns em gateways
-  const orderId = data.external_id || data.reference_id || (data.data && data.data.external_id);
+  const orderId = data.external_id || data.reference_id || data.reference || data.id || (data.data && (data.data.external_id || data.data.reference_id || data.data.id));
   const status = (data.status || (data.data && data.data.status) || "").toLowerCase();
   const event = (data.event || "").toLowerCase();
 
-  // Verifica se o status indica pagamento (paid, approved, payment.succeeded, etc)
-  const isPaid = status === 'paid' || status === 'approved' || event === 'payment.succeeded' || event === 'order.paid';
+  // Verifica se o status indica pagamento aprovado de forma extremamente ampla
+  const isPaid = 
+    status === 'paid' || 
+    status === 'approved' || 
+    status === 'completed' || 
+    status === 'succeeded' || 
+    status === 'success' || 
+    event === 'payment.succeeded' || 
+    event === 'order.paid' || 
+    event === 'transaction.paid' || 
+    event === 'transaction.approved' || 
+    event === 'order.approved';
 
-  console.log(`Processando pedido: ${orderId} | Status: ${status} | Pago: ${isPaid}`);
+  console.log(`Processando pedido: ${orderId} | Status: ${status} | Event: ${event} | Pago: ${isPaid}`);
 
   if (isPaid && orderId) {
     // Atualiza o status do pedido no Supabase
