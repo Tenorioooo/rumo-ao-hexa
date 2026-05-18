@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     // Dispara webhook de rastreio para o DiaLOG Rastreios
     try {
-      await sendDialogTracking(orderId);
+      await sendDialogTracking(orderId, data);
     } catch (dialogErr) {
       console.error("Erro ao disparar webhook do DiaLOG:", dialogErr);
     }

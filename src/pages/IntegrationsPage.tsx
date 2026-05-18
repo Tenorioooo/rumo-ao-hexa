@@ -16,6 +16,9 @@ export default function IntegrationsPage() {
   useEffect(() => {
     async function loadData() {
       if (!import.meta.env.VITE_SUPABASE_URL) {
+        // Fallback: carregar rascunho salvo no localStorage
+        const draftUrl = localStorage.getItem('draft_dialog_webhook_url') || '';
+        setWebhookUrl(draftUrl);
         setLoadingLogs(false);
         return;
       }
@@ -62,13 +65,24 @@ export default function IntegrationsPage() {
   }
 
   async function handleSave() {
-    if (!import.meta.env.VITE_SUPABASE_URL) {
-      setMessage({ type: 'error', text: 'Supabase não está configurado neste ambiente.' });
-      return;
-    }
-
     setSaving(true);
     setMessage(null);
+
+    if (!import.meta.env.VITE_SUPABASE_URL) {
+      try {
+        localStorage.setItem('draft_dialog_webhook_url', webhookUrl.trim());
+        setMessage({ 
+          type: 'success', 
+          text: 'Configuração salva localmente no navegador! Lembre-se de cadastrar a variável DIALOG_WEBHOOK_URL no painel da Vercel.' 
+        });
+        setTimeout(() => setMessage(null), 5000);
+      } catch (err: any) {
+        setMessage({ type: 'error', text: `Erro ao salvar localmente: ${err.message}` });
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
 
     try {
       const { error } = await (supabase as any)
@@ -152,6 +166,18 @@ export default function IntegrationsPage() {
             Envie automaticamente dados de pedidos aprovados e informações de entrega diretamente para o DiaLOG Rastreios. 
             Isso permite a emissão de etiquetas e rastreamento imediato do frete do seu e-commerce.
           </p>
+
+          {!import.meta.env.VITE_SUPABASE_URL && (
+            <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 text-xs mb-6 flex items-start gap-2.5 leading-relaxed">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" />
+              <div>
+                <strong className="block mb-0.5 font-bold">Modo de Configuração via Vercel Ativo:</strong>
+                O banco de dados Supabase não está ativo nesta loja. 
+                Sua URL de webhook será salva localmente no navegador para facilitar os seus testes rápidos de conexão. 
+                Para que o envio funcione no checkout real de vendas, cadastre a variável <strong className="font-mono">DIALOG_WEBHOOK_URL</strong> nas configurações do painel da sua Vercel.
+              </div>
+            </div>
+          )}
 
           {message && (
             <motion.div 
@@ -245,6 +271,10 @@ export default function IntegrationsPage() {
           {loadingLogs ? (
             <div className="py-12 flex justify-center">
               <RefreshCw className="animate-spin text-cyan-400" size={24} />
+            </div>
+          ) : !import.meta.env.VITE_SUPABASE_URL ? (
+            <div className="py-12 text-center text-gray-500 text-sm">
+              ℹ️ Banco de dados do Supabase inativo. Histórico de logs de auditoria desabilitado.
             </div>
           ) : logs.length === 0 ? (
             <div className="py-12 text-center text-gray-500 text-sm">

@@ -93,90 +93,141 @@ async function sendRequestWithRetry(url, payload, maxRetries = 3) {
   }
 }
 
-export async function sendDialogTracking(orderId) {
-  if (!supabase) {
-    console.error("[DiaLOG] Supabase client não configurado.");
-    return { success: false, error: "Supabase not configured" };
+export async function sendDialogTracking(orderId, webhookData = null) {
+  // 1. Impedir duplo disparo (idempotência local se Supabase estiver ativo)
+  if (supabase) {
+    const alreadySent = await checkAlreadySent(orderId);
+    if (alreadySent) {
+      console.log(`[DiaLOG] Pedido ${orderId} já foi enviado anteriormente.`);
+      return { success: true, message: "Already sent" };
+    }
   }
 
-  // 1. Impedir duplo disparo (idempotência local)
-  const alreadySent = await checkAlreadySent(orderId);
-  if (alreadySent) {
-    console.log(`[DiaLOG] Pedido ${orderId} já foi enviado anteriormente.`);
-    return { success: true, message: "Already sent" };
-  }
-
-  // 2. Buscar detalhes do pedido no Supabase
-  const { data: order, error: fetchError } = await supabase
-    .from('orders')
-    .select('*, order_items(*, product:products(*))')
-    .eq('id', orderId)
-    .maybeSingle();
-
-  if (fetchError || !order) {
-    console.error(`[DiaLOG] Erro ao buscar pedido ${orderId}:`, fetchError);
-    return { success: false, error: fetchError?.message || "Order not found" };
-  }
-
-  // 3. Obter URL do webhook externa
+  // 2. Obter URL do webhook externa
   const webhookUrl = await getWebhookUrl();
   if (!webhookUrl) {
     console.error("[DiaLOG] DIALOG_WEBHOOK_URL não configurada.");
     return { success: false, error: "DIALOG_WEBHOOK_URL not configured" };
   }
 
-  // 4. Formatar payload para DiaLOG
-  const address = order.shipping_address || {};
-  
-  let rawPhone = (address.phone || order.phone || '').replace(/\D/g, '');
-  if (rawPhone && !rawPhone.startsWith('55')) {
-    rawPhone = '55' + rawPhone;
+  // 3. Montar payload do pedido
+  let payload = null;
+
+  if (supabase) {
+    try {
+      const { data: order, error: fetchError } = await supabase
+        .from('orders')
+        .select('*, order_items(*, product:products(*))')
+        .eq('id', orderId)
+        .maybeSingle();
+
+      if (!fetchError && order) {
+        const address = order.shipping_address || {};
+        let rawPhone = (address.phone || order.phone || '').replace(/\D/g, '');
+        if (rawPhone && !rawPhone.startsWith('55')) {
+          rawPhone = '55' + rawPhone;
+        }
+        const phone = rawPhone ? '+' + rawPhone : '';
+        const cleanCpf = (address.cpf || order.cpf || '').replace(/\D/g, '');
+
+        payload = {
+          order_id: order.id,
+          status: "paid",
+          external_reference: order.id,
+          customer: {
+            name: address.name || "Cliente Vapex",
+            email: address.email || order.email || "contato@vapex.com",
+            phone: phone,
+            document: cleanCpf
+          },
+          shipping_address: {
+            street: address.street || "",
+            number: String(address.number || ""),
+            complement: address.complement || "",
+            neighborhood: address.neighborhood || "",
+            city: address.city || "",
+            state: address.state || "",
+            zipcode: address.cep || "",
+            country: "BR"
+          },
+          products: (order.order_items || []).map(item => ({
+            name: item.product?.name || "Produto Vapex",
+            price: Number(item.price || 0),
+            quantity: Number(item.quantity || 1),
+            weight: 0.1
+          })),
+          total: Number(order.total || 0)
+        };
+      }
+    } catch (e) {
+      console.error("[DiaLOG] Erro ao buscar pedido no Supabase:", e);
+    }
   }
-  const phone = rawPhone ? '+' + rawPhone : '';
 
-  const cleanCpf = (address.cpf || order.cpf || '').replace(/\D/g, '');
+  // Fallback: usar dados da requisição do webhook (VenoPayments) caso o Supabase não esteja disponível/conectado
+  if (!payload && webhookData) {
+    const payer = webhookData.data?.payer || webhookData.payer || {};
+    const address = webhookData.data?.address || webhookData.address || {};
+    const amountInCents = webhookData.data?.amount || webhookData.amount || 0;
 
-  const payload = {
-    order_id: order.id,
-    status: "paid",
-    external_reference: order.id,
-    customer: {
-      name: address.name || "Cliente Vapex",
-      email: address.email || order.email || "contato@vapex.com",
-      phone: phone,
-      document: cleanCpf
-    },
-    shipping_address: {
-      street: address.street || "",
-      number: String(address.number || ""),
-      complement: address.complement || "",
-      neighborhood: address.neighborhood || "",
-      city: address.city || "",
-      state: address.state || "",
-      zipcode: address.cep || "",
-      country: "BR"
-    },
-    products: (order.order_items || []).map(item => ({
-      name: item.product?.name || "Produto Vapex",
-      price: Number(item.price || 0),
-      quantity: Number(item.quantity || 1),
-      weight: 0.1
-    })),
-    total: Number(order.total || 0)
-  };
+    let rawPhone = (payer.phone || '').replace(/\D/g, '');
+    if (rawPhone && !rawPhone.startsWith('55')) {
+      rawPhone = '55' + rawPhone;
+    }
+    const phone = rawPhone ? '+' + rawPhone : '';
+    const cleanCpf = (payer.document || payer.cpf || '').replace(/\D/g, '');
 
-  // 5. Enviar requisição com lógica de retentativas
-  console.log(`[DiaLOG] Enviando webhook para o pedido ${order.id}...`);
+    payload = {
+      order_id: orderId,
+      status: "paid",
+      external_reference: orderId,
+      customer: {
+        name: payer.name || "Cliente Vapex",
+        email: payer.email || "contato@vapex.com",
+        phone: phone,
+        document: cleanCpf
+      },
+      shipping_address: {
+        street: address.street || "",
+        number: String(address.number || ""),
+        complement: address.complement || "",
+        neighborhood: address.neighborhood || "",
+        city: address.city || "",
+        state: address.state || "",
+        zipcode: address.cep || address.zipcode || "",
+        country: "BR"
+      },
+      products: [
+        {
+          name: "Produto Vapex",
+          price: Number(amountInCents) / 100,
+          quantity: 1,
+          weight: 0.1
+        }
+      ],
+      total: Number(amountInCents) / 100
+    };
+  }
+
+  if (!payload) {
+    console.error("[DiaLOG] Não foi possível compilar dados do pedido para envio.");
+    return { success: false, error: "Order details missing" };
+  }
+
+  // 4. Enviar requisição com lógica de retentativas
+  console.log(`[DiaLOG] Enviando webhook para o pedido ${orderId}...`);
   const result = await sendRequestWithRetry(webhookUrl, payload);
 
-  // 6. Registrar resposta na tabela de logs para auditoria
-  await logResponse(order.id, result.status, result.body);
+  // 5. Registrar resposta na tabela de logs se o banco estiver disponível
+  if (supabase) {
+    await logResponse(orderId, result.status, result.body);
+  }
 
   if (result.status >= 200 && result.status < 300) {
-    console.log(`[DiaLOG] Rastreio do pedido ${order.id} enviado com sucesso!`);
+    console.log(`[DiaLOG] Rastreio do pedido ${orderId} enviado com sucesso!`);
     return { success: true, status: result.status };
   } else {
-    console.error(`[DiaLOG] Falha ao enviar rastreio do pedido ${order.id} (Status ${result.status})`);
+    console.error(`[DiaLOG] Falha ao enviar rastreio do pedido ${orderId} (Status ${result.status})`);
     return { success: false, status: result.status, error: result.body };
   }
 }
