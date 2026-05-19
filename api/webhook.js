@@ -119,64 +119,16 @@ export default async function handler(req, res) {
         console.warn("AVISO: UTMIFY_TOKEN não configurado no servidor. Envio para Utmify pulado.");
       } else {
         logEntry.utmifyCalled = true;
-        const amountInCents = data.data?.amount || data.amount || 0;
-        const payer = data.data?.payer || data.payer || {};
-
-        let rawPhone = (payer.phone || "").replace(/\D/g, "");
-        if (rawPhone && !rawPhone.startsWith("55") && (rawPhone.length === 10 || rawPhone.length === 11)) {
-          rawPhone = "55" + rawPhone;
-        }
-        const cleanCpf = (payer.document || payer.cpf || "").replace(/\D/g, "");
-
-        const utmSource = data.data?.utm_source || data.utm_source || "";
-        const utmMedium = data.data?.utm_medium || data.utm_medium || "";
-        const utmCampaign = data.data?.utm_campaign || data.utm_campaign || "";
-        const utmContent = data.data?.utm_content || data.utm_content || "";
-        const utmTerm = data.data?.utm_term || data.utm_term || "";
-        const src = data.data?.src || data.src || "";
-        const sck = data.data?.sck || data.sck || "";
 
         const utmifyPayload = {
           orderId: orderId,
-          status: "paid", // Utmify exige 'paid'
-          createdAt: new Date().toISOString().replace('T', ' ').split('.')[0],
+          status: "approved",
           approvedDate: new Date().toISOString().replace('T', ' ').split('.')[0],
           paymentMethod: "pix",
-          platform: "VenoPayments",
-          customer: {
-            name: payer.name || "Cliente Vapex",
-            email: payer.email || "contato@vapex.com",
-            phone: rawPhone || undefined,
-            document: cleanCpf || undefined,
-            country: "BR"
-          },
-          products: [
-            {
-              id: "vapex-item",
-              name: "Produto Vapex",
-              planId: null,
-              planName: null,
-              quantity: 1,
-              priceInCents: amountInCents
-            }
-          ],
-          trackingParameters: {
-            utm_source: utmSource,
-            utm_medium: utmMedium,
-            utm_campaign: utmCampaign,
-            utm_content: utmContent,
-            utm_term: utmTerm,
-            src: src,
-            sck: sck
-          },
-          commission: {
-            totalPriceInCents: amountInCents,
-            gatewayFeeInCents: Math.round(amountInCents * 0.05),
-            userCommissionInCents: Math.round(amountInCents * 0.95)
-          }
+          platform: "VenoPayments"
         };
 
-        console.log("Enviando Payload Completo para Utmify:", JSON.stringify(utmifyPayload, null, 2));
+        console.log("Enviando Payload Mínimo para Utmify:", JSON.stringify(utmifyPayload, null, 2));
 
         const utmifyResponse = await fetch("https://api.utmify.com.br/api-credentials/orders", {
           method: "POST",
