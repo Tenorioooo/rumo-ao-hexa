@@ -3,9 +3,28 @@ import { sendDialogTracking } from './dialog.js';
 
 const supabase = null; // Desativado conforme solicitação do cliente (não utiliza Supabase)
 
+global.webhookLogs = global.webhookLogs || [];
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Registra no buffer de logs
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    body: req.body,
+    headers: req.headers,
+    isPaidChecked: false,
+    utmifyCalled: false,
+    utmifyResult: null,
+    dialogCalled: false,
+    dialogResult: null,
+    error: null
+  };
+  global.webhookLogs.unshift(logEntry);
+  if (global.webhookLogs.length > 20) {
+    global.webhookLogs.pop();
   }
 
   let data = req.body;
@@ -57,6 +76,11 @@ export default async function handler(req, res) {
     event === 'pix.received' ||
     event === 'payment.paid';
 
+  logEntry.isPaidChecked = isPaid;
+  logEntry.orderId = orderId;
+  logEntry.status = status;
+  logEntry.event = event;
+
   console.log(`Processando pedido: ${orderId} | Status: ${status} | Event: ${event} | Pago: ${isPaid}`);
 
   if (isPaid && orderId) {
@@ -80,9 +104,12 @@ export default async function handler(req, res) {
 
     // Dispara webhook de rastreio para o DiaLOG Rastreios
     try {
-      await sendDialogTracking(orderId, data);
+      logEntry.dialogCalled = true;
+      const resDialog = await sendDialogTracking(orderId, data);
+      logEntry.dialogResult = resDialog;
     } catch (dialogErr) {
       console.error("Erro ao disparar webhook do DiaLOG:", dialogErr);
+      logEntry.dialogResult = { error: dialogErr.message || String(dialogErr) };
     }
 
     try {
@@ -91,6 +118,7 @@ export default async function handler(req, res) {
       if (!utmifyToken) {
         console.warn("AVISO: UTMIFY_TOKEN não configurado no servidor. Envio para Utmify pulado.");
       } else {
+        logEntry.utmifyCalled = true;
         const amountInCents = data.data?.amount || data.amount || 0;
         const payer = data.data?.payer || data.payer || {};
 
@@ -168,9 +196,12 @@ export default async function handler(req, res) {
 
         const utmifyResult = await utmifyResponse.json().catch(() => ({}));
         console.log("Resultado Final Utmify:", utmifyResult);
+        logEntry.utmifyResult = utmifyResult;
+        logEntry.success = true;
       }
     } catch (error) {
       console.error("Erro ao processar webhook para Utmify:", error);
+      logEntry.error = error.message || String(error);
     }
   }
 
