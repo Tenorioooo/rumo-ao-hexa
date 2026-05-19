@@ -1,9 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendDialogTracking } from './dialog.js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+const supabase = null; // Desativado conforme solicitação do cliente (não utiliza Supabase)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
