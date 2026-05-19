@@ -1,3 +1,5 @@
+import { sendDialogTracking } from './dialog.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -19,12 +21,29 @@ export default async function handler(req, res) {
     // Se o valor for menor ou igual a R$ 1.05 (valor típico de teste),
     // nós forçamos a aprovação imediata para que o cliente consiga testar o fluxo completo sem fricção!
     if (amount > 0 && amount <= 1.05) {
-      console.log(`[CheckPayment] Transação de TESTE (R$ ${amount}) detectada. Forçando aprovação Utmify!`);
+      console.log(`[CheckPayment] Transação de TESTE (R$ ${amount}) detectada. Forçando aprovação Utmify e DiaLOG!`);
       
+      // 1. Dispara webhook de rastreio para o DiaLOG Rastreios
+      try {
+        await sendDialogTracking(orderId, {
+          amount: amount * 100,
+          payer: {
+            name: "Cliente Teste Vapex",
+            email: "contato@vapex.com",
+            phone: "5511999999999",
+            document: "00000000000"
+          }
+        });
+        console.log(`[CheckPayment] Rastreio de teste DiaLOG disparado.`);
+      } catch (dialogErr) {
+        console.error(`[CheckPayment] Erro DiaLOG de teste:`, dialogErr);
+      }
+
+      // 2. Dispara aprovação para a Utmify (exige status 'paid')
       if (utmifyToken && orderId) {
         const utmifyPayload = {
           orderId: orderId,
-          status: "approved",
+          status: "paid",
           approvedDate: new Date().toISOString().replace('T', ' ').split('.')[0],
           paymentMethod: "pix",
           platform: "VenoPayments"
@@ -72,12 +91,20 @@ export default async function handler(req, res) {
       const isPaid = status === 'paid' || status === 'approved' || status === 'completed';
 
       if (isPaid) {
-        console.log(`[CheckPayment] Transação paga na Veno! Aprovando no Utmify...`);
+        console.log(`[CheckPayment] Transação paga na Veno! Aprovando no Utmify e DiaLOG...`);
 
+        // 1. Dispara webhook de rastreio para o DiaLOG Rastreios
+        try {
+          await sendDialogTracking(orderId, data);
+        } catch (dialogErr) {
+          console.error(`[CheckPayment] Erro DiaLOG:`, dialogErr);
+        }
+
+        // 2. Dispara aprovação para a Utmify (exige status 'paid')
         if (utmifyToken && orderId) {
           const utmifyPayload = {
             orderId: orderId,
-            status: "approved",
+            status: "paid",
             approvedDate: new Date().toISOString().replace('T', ' ').split('.')[0],
             paymentMethod: "pix",
             platform: "VenoPayments"
@@ -102,8 +129,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ approved: true, status });
       }
     } else {
-      // Se der erro na API da Veno (ex: rota não encontrada ou instabilidade),
-      // nós olhamos os logs globais de webhooks recebidos como fallback secundário.
+      // Se der erro na API da Veno (ex: rota não encontrada), busca nos logs globais de webhooks recebidos como fallback secundário.
       console.log(`[CheckPayment] Veno GET indisponível. Buscando transação nos logs de webhooks...`);
       
       const foundInWebhook = (global.webhookLogs || []).find(log => {
@@ -113,6 +139,14 @@ export default async function handler(req, res) {
 
       if (foundInWebhook) {
         console.log(`[CheckPayment] Encontrado webhook de pagamento aprovado para o pedido: ${orderId}`);
+        
+        // 1. Dispara DiaLOG
+        try {
+          await sendDialogTracking(orderId, foundInWebhook.body);
+        } catch (dialogErr) {
+          console.error(`[CheckPayment] Erro DiaLOG fallback:`, dialogErr);
+        }
+
         return res.status(200).json({ approved: true, status: 'paid_via_webhook' });
       }
     }

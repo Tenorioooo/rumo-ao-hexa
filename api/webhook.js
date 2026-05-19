@@ -122,7 +122,7 @@ export default async function handler(req, res) {
 
         const utmifyPayload = {
           orderId: orderId,
-          status: "approved",
+          status: "paid",
           approvedDate: new Date().toISOString().replace('T', ' ').split('.')[0],
           paymentMethod: "pix",
           platform: "VenoPayments"
