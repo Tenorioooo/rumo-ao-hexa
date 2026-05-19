@@ -19,9 +19,10 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [pixData, setPixData] = useState<{ pix_code: string; pix_qr_code: string } | null>(null);
+  const [pixData, setPixData] = useState<{ pix_code: string; pix_qr_code: string; transaction_id?: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentApproved, setPaymentApproved] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutos em segundos
 
   // Countdown Timer
@@ -34,20 +35,18 @@ export default function CheckoutPage() {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
-  // Real-time polling para checar status do pagamento via Supabase
+  // Real-time polling para checar status do pagamento via Veno Payments API diretamente
   useEffect(() => {
-    if (step !== 'confirm' || !orderId || paymentApproved || !import.meta.env.VITE_SUPABASE_URL) return;
+    if (step !== 'confirm' || paymentApproved || !pixData?.transaction_id || !orderId) return;
 
     const intervalId = setInterval(async () => {
       try {
-        const { data } = await supabase
-          .from('orders')
-          .select('status, payment_status')
-          .eq('id', orderId)
-          .maybeSingle();
-
-        if (data && (data.status === 'approved' || data.status === 'paid' || data.payment_status === 'paid')) {
-          setPaymentApproved(true);
+        const res = await fetch(`/api/check-payment?transactionId=${pixData.transaction_id}&orderId=${orderId}`);
+        if (res.ok) {
+          const checkData = await res.json();
+          if (checkData.approved) {
+            setPaymentApproved(true);
+          }
         }
       } catch (e) {
         console.error("Erro ao verificar status do pagamento:", e);
@@ -55,7 +54,30 @@ export default function CheckoutPage() {
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, [step, orderId, paymentApproved]);
+  }, [step, orderId, paymentApproved, pixData]);
+
+  const handleCheckPayment = async () => {
+    if (!pixData?.transaction_id || !orderId) return;
+    setCheckingPayment(true);
+    try {
+      const res = await fetch(`/api/check-payment?transactionId=${pixData.transaction_id}&orderId=${orderId}`);
+      if (res.ok) {
+        const checkData = await res.json();
+        if (checkData.approved) {
+          setPaymentApproved(true);
+        } else {
+          alert("Seu pagamento ainda não foi detectado pela Veno. Certifique-se de concluir a transferência no app do seu banco e clique para verificar novamente!");
+        }
+      } else {
+        alert("Erro ao consultar status do Pix na Veno. Tente novamente em alguns segundos.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao consultar status. Verifique sua internet.");
+    } finally {
+      setCheckingPayment(false);
+    }
+  };
   
   // Track Initiate Checkout
   useEffect(() => {
@@ -293,7 +315,8 @@ export default function CheckoutPage() {
               if (pixResult.status === 'success' && pixResult.pix_code) {
                 setPixData({
                   pix_code: pixResult.pix_code,
-                  pix_qr_code: pixResult.pix_qr_code || ''
+                  pix_qr_code: pixResult.pix_qr_code || '',
+                  transaction_id: pixResult.transaction_id
                 });
                 // 🔵 Meta Pixel: Purchase
                 pixelPurchase(finalTotal - pixDiscount, 'BRL', order.id);
@@ -698,10 +721,23 @@ export default function CheckoutPage() {
                         setCopied(true);
                         setTimeout(() => setCopied(false), 2000);
                       }}
-                      className="w-full py-3 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-cyan-500/20 transition-all mb-4"
+                      className="w-full py-3 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-cyan-500/20 transition-all mb-3"
                     >
                       {copied ? <Check size={18} /> : <FileText size={18} />}
                       {copied ? 'Copiado!' : 'Copiar Código PIX'}
+                    </button>
+
+                    <button
+                      onClick={handleCheckPayment}
+                      disabled={checkingPayment}
+                      className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all mb-4 shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {checkingPayment ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Check size={18} />
+                      )}
+                      {checkingPayment ? 'Verificando pagamento...' : 'Já Paguei (Confirmar PIX)'}
                     </button>
 
                     <div className="text-left pt-4 border-t border-white/5 space-y-3">
