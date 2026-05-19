@@ -39,8 +39,8 @@ export default async function handler(req, res) {
 
   // Tenta pegar o ID do pedido de várias formas comuns em gateways
   const orderId = data.external_id || data.reference_id || data.reference || data.id || (data.data && (data.data.external_id || data.data.reference_id || data.data.id));
-  const status = (data.status || (data.data && data.data.status) || "").toLowerCase();
-  const event = (data.event || "").toLowerCase();
+  const status = String(data.status || (data.data && data.data.status) || "").toLowerCase();
+  const event = String(data.event || "").toLowerCase();
 
   // Verifica se o status indica pagamento aprovado de forma extremamente ampla
   const isPaid = 

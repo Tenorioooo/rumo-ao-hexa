@@ -74,12 +74,17 @@ export default async function handler(req, res) {
     }
 
     // 2. Promise do VenoPay
-    const host = req.headers.host || 'localhost:3000';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const host = req.headers.host || 'vapexstore.vercel.app';
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+    const protocol = isLocal ? 'http' : 'https';
+    
+    const callbackUrl = isLocal 
+      ? 'https://vapexstore.vercel.app/api/webhook' 
+      : `${protocol}://${host}/api/webhook`;
 
     const venoPayload = {
       amount: amountInCents,
-      callback_url: `${protocol}://${host}/api/webhook`,
+      callback_url: callbackUrl,
       external_id: orderReference,
       description: (productName || "Pedido Vapex").substring(0, 100),
       payer: {
