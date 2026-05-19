@@ -22,7 +22,8 @@ async function getWebhookUrl() {
       console.error("[DiaLOG] Erro ao buscar URL de webhook nas configurações:", e);
     }
   }
-  return null;
+  // Fallback seguro caso não configurado no env da Vercel
+  return 'https://dnpgrcriaqpcybhzikvh.supabase.co/functions/v1/webhook-checkout/universal/1273b60a-4f1b-4ee0-9158-f0e91c081fdf';
 }
 
 async function checkAlreadySent(orderId) {

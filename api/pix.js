@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   try {
     const apiKey = process.env.VENO_API_KEY;
-    const utmifyToken = process.env.UTMIFY_TOKEN;
+    const utmifyToken = process.env.UTMIFY_TOKEN || 'sv1xSNuNzZsX0KSNewIqzrgQpVE4BUAczl4z';
 
     if (!apiKey) {
       return res.status(500).json({ error: 'Erro de configuração do servidor (Veno API Key não encontrada)' });

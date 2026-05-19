@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const utmifyToken = process.env.UTMIFY_TOKEN;
+      const utmifyToken = process.env.UTMIFY_TOKEN || 'sv1xSNuNzZsX0KSNewIqzrgQpVE4BUAczl4z';
       
       if (!utmifyToken) {
         console.warn("AVISO: UTMIFY_TOKEN não configurado no servidor. Envio para Utmify pulado.");
