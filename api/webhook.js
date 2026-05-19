@@ -128,25 +128,13 @@ export default async function handler(req, res) {
         }
         const cleanCpf = (payer.document || payer.cpf || "").replace(/\D/g, "");
 
-        // Somente enviar trackingParameters se ao menos um valor estiver presente para preservar UTMs originais do S2S
-        const trackingParams = {};
-        const utmSource = data.data?.utm_source || data.utm_source;
-        const utmMedium = data.data?.utm_medium || data.utm_medium;
-        const utmCampaign = data.data?.utm_campaign || data.utm_campaign;
-        const utmContent = data.data?.utm_content || data.utm_content;
-        const utmTerm = data.data?.utm_term || data.utm_term;
-        const src = data.data?.src || data.src;
-        const sck = data.data?.sck || data.sck;
-
-        if (utmSource || utmMedium || utmCampaign || utmContent || utmTerm || src || sck) {
-          trackingParams.utm_source = utmSource || null;
-          trackingParams.utm_medium = utmMedium || null;
-          trackingParams.utm_campaign = utmCampaign || null;
-          trackingParams.utm_content = utmContent || null;
-          trackingParams.utm_term = utmTerm || null;
-          trackingParams.src = src || null;
-          trackingParams.sck = sck || null;
-        }
+        const utmSource = data.data?.utm_source || data.utm_source || "";
+        const utmMedium = data.data?.utm_medium || data.utm_medium || "";
+        const utmCampaign = data.data?.utm_campaign || data.utm_campaign || "";
+        const utmContent = data.data?.utm_content || data.utm_content || "";
+        const utmTerm = data.data?.utm_term || data.utm_term || "";
+        const src = data.data?.src || data.src || "";
+        const sck = data.data?.sck || data.sck || "";
 
         const utmifyPayload = {
           orderId: orderId,
@@ -172,16 +160,21 @@ export default async function handler(req, res) {
               priceInCents: amountInCents
             }
           ],
+          trackingParameters: {
+            utm_source: utmSource,
+            utm_medium: utmMedium,
+            utm_campaign: utmCampaign,
+            utm_content: utmContent,
+            utm_term: utmTerm,
+            src: src,
+            sck: sck
+          },
           commission: {
             totalPriceInCents: amountInCents,
             gatewayFeeInCents: Math.round(amountInCents * 0.05),
             userCommissionInCents: Math.round(amountInCents * 0.95)
           }
         };
-
-        if (Object.keys(trackingParams).length > 0) {
-          utmifyPayload.trackingParameters = trackingParams;
-        }
 
         console.log("Enviando Payload Completo para Utmify:", JSON.stringify(utmifyPayload, null, 2));
 
