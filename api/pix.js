@@ -39,8 +39,8 @@ export default async function handler(req, res) {
         },
         products: [
           {
-            id: productName || "vapex-item",
-            name: productName || "Pedido Vapex",
+            id: "vapex-item", // ID consistente com o webhook de aprovação para garantir match perfeito na Utmify
+            name: productName || "Produto Vapex",
             planId: null,
             planName: null,
             quantity: 1,
