@@ -1,0 +1,37 @@
+{
+  "orderId": "019e533b-8754-7b00-b51e-eee80cedbf20",
+  "platform": "Web",
+  "paymentMethod": "pix",
+  "status": "waiting_payment",
+  "createdAt": "2026-05-23T05:07:51.620Z",
+  "approvedDate": "2026-05-23T05:07:51.620Z",
+  "value": 8795,
+  "customer": {
+    "name": "Tenório",
+    "email": "a@gmail.com",
+    "phone": "00000000000",
+    "document": "03915567116"
+  },
+  "trackingParameters": {
+    "utm_source": "google",
+    "utm_medium": "cpc",
+    "utm_campaign": "test",
+    "utm_content": "content",
+    "utm_term": "term"
+  },
+  "commission": {
+    "totalPriceInCents": 8795,
+    "gatewayFeeInCents": 0,
+    "userCommissionInCents": 0
+  },
+  "products": [
+    {
+      "id": "generated",
+      "name": "Compra Hexa Store",
+      "planId": "generated",
+      "planName": "Compra Hexa Store",
+      "quantity": 1,
+      "priceInCents": 8795
+    }
+  ]
+}

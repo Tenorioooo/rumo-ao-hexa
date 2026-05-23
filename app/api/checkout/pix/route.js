@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendUtmifyOrder } from '../../../../lib/utmify';
 
 export async function POST(request) {
   try {
@@ -35,7 +36,8 @@ export async function POST(request) {
       body: JSON.stringify({
         amount: body.amount,
         payer: body.payer,
-        description: 'Compra Hexa Store'
+        description: 'Compra Hexa Store',
+        trackingParameters: body.trackingParameters
       })
     });
 
@@ -48,6 +50,15 @@ export async function POST(request) {
         { status: response.status }
       );
     }
+
+    // Enviar evento de PIX gerado para o UTMify (incluindo parâmetros de rastreamento)
+    sendUtmifyOrder({
+      id: data.id || data.transactionId,
+      status: "generated",
+      amount: body.amount,
+      payer: body.payer,
+      trackingParameters: body.trackingParameters
+    });
 
     return NextResponse.json(data);
   } catch (error) {

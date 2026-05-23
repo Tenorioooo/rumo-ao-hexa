@@ -122,17 +122,22 @@ export default function CheckoutPage() {
 
     try {
       const response = await fetch('/api/checkout/pix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: Math.round(total * 100), // convert to cents
-          payer: {
-            name: formData.name,
-            email: formData.email,
-            document: formData.document.replace(/\D/g, '') // remove non-digits
-          }
-        })
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    amount: Math.round(total * 100), // convert to cents
+    payer: {
+      name: formData.name,
+      email: formData.email,
+      document: formData.document.replace(/\D/g, '') // remove non-digits
+    },
+    // Capture UTM parameters from URL (client-side)
+    trackingParameters: typeof window !== 'undefined' ? Object.fromEntries(
+      Array.from(new URLSearchParams(window.location.search).entries())
+        .filter(([k]) => k.startsWith('utm_'))
+    ) : {}
+  })
+});
 
       const data = await response.json();
 
