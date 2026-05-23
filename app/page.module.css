@@ -1,0 +1,368 @@
+.page {
+  padding-top: 0;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 100px 0 60px;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.heroGlow1 {
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 60%;
+  height: 80%;
+  background: radial-gradient(ellipse, rgba(0,166,81,0.12) 0%, transparent 70%);
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.heroGlow2 {
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 50%;
+  height: 70%;
+  background: radial-gradient(ellipse, rgba(245,197,24,0.08) 0%, transparent 70%);
+  animation: pulse 8s ease-in-out infinite reverse;
+}
+
+.heroGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+}
+
+.heroContent {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+/* Hero Text */
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeInUp 0.7s ease both;
+}
+
+.heroBadge {}
+
+.heroTitle {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(36px, 5.5vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.heroDesc {
+  font-size: 17px;
+  color: #8a9bb0;
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+.heroCtas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.heroTrust {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.heroTrust span {
+  font-size: 13px;
+  color: #4a5a6a;
+}
+
+/* Countdown */
+.countdown {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(20px);
+  animation: fadeInUp 0.7s 0.2s ease both;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brand-green), var(--brand-gold), var(--brand-green));
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+.countdownLabel {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a9bb0;
+  text-align: center;
+}
+
+.countdownGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  position: relative;
+}
+
+.countdownUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 16px 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.countdownNum {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 1;
+  background: linear-gradient(135deg, #00cc66, #f5c518);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+.countdownLbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4a5a6a;
+}
+
+.countdownDividers {
+  display: none;
+}
+
+.flagGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.flagItem {
+  font-size: 28px;
+  text-align: center;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+  transition: transform 0.2s;
+  cursor: default;
+}
+
+.flagItem:hover {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+/* Scroll indicator */
+.scrollIndicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 40px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.scrollDot {
+  width: 4px;
+  height: 8px;
+  background: var(--brand-green);
+  border-radius: 2px;
+  animation: scroll-dot 2s ease-in-out infinite;
+}
+
+/* ── Features ── */
+.features {
+  padding: 40px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.01);
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  transition: background 0.2s;
+}
+
+.featureItem:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.featureIcon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.featureTitle {
+  font-weight: 700;
+  font-size: 14px;
+  color: #f0f4f8;
+  margin-bottom: 2px;
+}
+
+.featureDesc {
+  font-size: 13px;
+  color: #8a9bb0;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 80px 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+
+.sectionTitle {
+  margin-top: 10px;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.productGrid4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ── Copa Banner ── */
+.copaBanner {
+  margin: 0 0;
+  padding: 60px 0;
+  background: linear-gradient(135deg, rgba(0,166,81,0.08) 0%, rgba(245,197,24,0.06) 100%);
+  border-top: 1px solid rgba(0,166,81,0.15);
+  border-bottom: 1px solid rgba(0,166,81,0.15);
+}
+
+.copaBannerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.bannerTitle {
+  margin-bottom: 12px;
+}
+
+.bannerDesc {
+  font-size: 16px;
+  color: #8a9bb0;
+  max-width: 520px;
+  line-height: 1.7;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes countdown-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes scroll-dot {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(16px); opacity: 0; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .productGrid4 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .heroContent { grid-template-columns: 1fr; gap: 40px; }
+  .countdown { order: -1; }
+  .featureGrid { grid-template-columns: repeat(2, 1fr); }
+  .productGrid { grid-template-columns: repeat(2, 1fr); }
+  .productGrid4 { grid-template-columns: repeat(2, 1fr); }
+  .copaBannerInner { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 560px) {
+  .productGrid { grid-template-columns: 1fr; }
+  .productGrid4 { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .featureGrid { grid-template-columns: 1fr; }
+  .sectionHeader { flex-direction: column; align-items: flex-start; }
+  .heroCtas { flex-direction: column; }
+  .heroTrust { flex-direction: column; gap: 8px; }
+  .countdownNum { font-size: 32px; }
+}

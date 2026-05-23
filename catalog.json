@@ -1,0 +1,590 @@
+[
+    {
+        "id": "1421615647",
+        "name": "Camisa Espanha - Home - Manga Longa (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "558573908",
+        "name": "Camisa Holanda - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "558212950",
+        "name": "Camisa da Espanha - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "adidas"
+    },
+    {
+        "id": "532514123",
+        "name": "Camisa Italia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "534431787",
+        "name": "Camisa Argentina - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "562018470",
+        "name": "Camisa Portugal - Treino (P)",
+        "price": 169.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "531511842",
+        "name": "Camisa Argentina - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "524418791",
+        "name": "Camisa do Brasil Amarela - Home Jogador (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "562500360",
+        "name": "Camisa Coreia do Sul - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "524342458",
+        "name": "Camisa do Brasil Azul - Away Jogador (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Nike"
+    },
+    {
+        "id": "524459156",
+        "name": "Camisa México - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "814148299",
+        "name": "Camisa de Portugal - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "814148037",
+        "name": "Camisa Inglaterra - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "528293789",
+        "name": "Camisa Uruguai - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "523835583",
+        "name": "Camisa do Brasil Amarela - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "530500699",
+        "name": "Camisa Holanda - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "525456567",
+        "name": "Camisa da Argentina - Home Jogador (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "530518898",
+        "name": "Camisa Alemanha - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "533420377",
+        "name": "Camisa Japão - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "534409915",
+        "name": "Camisa França - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "534412209",
+        "name": "Camisa Equador - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "534425856",
+        "name": "Camisa Marrocos - Home (Não, P)",
+        "price": 169.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "685466927",
+        "name": "Camisa Estados Unidos - Home (M, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "555282722",
+        "name": "Camisa França - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "558225271",
+        "name": "Camisa da Espanha - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "558521919",
+        "name": "Camisa do México - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "559765236",
+        "name": "Camisa Estados Unidos - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "602997440",
+        "name": "Camisa Peru - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "766910318",
+        "name": "Camisa Canadá - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "651842205",
+        "name": "Camisa de Portugal - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "671593159",
+        "name": "Camisa Nigéria - Home (Não, P)",
+        "price": 169.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "671594283",
+        "name": "Camisa Argélia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "678570994",
+        "name": "Camisa da Inglaterra - Home - Jogador (Não, P)",
+        "price": 199.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "683392823",
+        "name": "Camisa Japão - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "683394950",
+        "name": "Camisa Alemanha - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "683398496",
+        "name": "Camisa Coreia do Sul - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "758783392",
+        "name": "Camisa Colômbia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "758879264",
+        "name": "Camisa Egito - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "758882359",
+        "name": "Camisa Senegal - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "795080137",
+        "name": "Camisa Italia - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "968786075",
+        "name": "Camisa Inglaterra - Away (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "848740495",
+        "name": "Camisa da Argentina - Away Jogador (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Adidas"
+    },
+    {
+        "id": "855907346",
+        "name": "Camisa da Suíça - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "935353163",
+        "name": "Camisa Croácia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "935357141",
+        "name": "Camisa República Tcheca - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "935360086",
+        "name": "Camisa Áustria - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936687251",
+        "name": "Camisa de Portugal - Goleiro (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936692140",
+        "name": "Camisa França - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936696968",
+        "name": "Camisa Polônia - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936702521",
+        "name": "Camisa Noruega - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936706075",
+        "name": "Camisa Polônia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936746453",
+        "name": "Camisa Argentina - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936752541",
+        "name": "Camisa Italia - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936771667",
+        "name": "Camisa Inglaterra - Goleiro (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936803981",
+        "name": "Camisa Suécia - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936805668",
+        "name": "Camisa Suécia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "936810453",
+        "name": "Camisa Noruega - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "944032131",
+        "name": "Camisa Servia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "949421583",
+        "name": "Camisa Ucrânia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "949423604",
+        "name": "Camisa Alemanha - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "955974059",
+        "name": "Camisa Colômbia - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "968775663",
+        "name": "Camisa Uruguai - Away (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "976756811",
+        "name": "Camisa da Espanha - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "adidas"
+    },
+    {
+        "id": "976797021",
+        "name": "Camisa Croácia - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1096902187",
+        "name": "Camisa Dinamarca - Away (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1096902787",
+        "name": "Camisa Suíça - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1096904405",
+        "name": "Camisa Turquia - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1096905294",
+        "name": "Camisa Peru - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1096920366",
+        "name": "Camisa Colômbia - Especial (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1126219756",
+        "name": "Camisa Argentina - 50 Anos (P, Não)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1160594154",
+        "name": "Camisa Japão - Naruto (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1382879371",
+        "name": "Camisa Costa Rica - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1421617688",
+        "name": "Camisa Portugal - Home - Manga Longa (Não, P)",
+        "price": 209.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1436914281",
+        "name": "Camisa República Checa - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492264574",
+        "name": "Camisa Africa do Sul - Away (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492266566",
+        "name": "Camisa Paraguai - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492270446",
+        "name": "Camisa Marrocos - Away (Não, P)",
+        "price": 169.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492285513",
+        "name": "Camisa Africa do Sul - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492308091",
+        "name": "Camisa Gana - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492322270",
+        "name": "Camisa Escócia - Away (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492325616",
+        "name": "Camisa Escócia - Home (P, Não)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492326883",
+        "name": "Camisa Arábia Saudita - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1492331137",
+        "name": "Camisa Catar - Home (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    },
+    {
+        "id": "1522525839",
+        "name": "Camisa do Brasil - Goleiro (Não, P)",
+        "price": 175.9,
+        "category": "Seleções Internacionais",
+        "brand": "Unknown"
+    }
+]
